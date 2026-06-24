@@ -8,7 +8,7 @@
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
         .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
         h1 { font-size: 1.5rem; color: #333; text-align: center; }
-        .question-box { margin: 20px 0; padding: 20px; background: #eef2f3; border-radius: 8px; }
+        .question-box { margin: 20px 0; padding: 20px; background: #eef2f3; border-radius: 8px; text-align: center; }
         input { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; margin-top: 15px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
         #result { text-align: center; font-size: 1.2rem; font-weight: bold; margin-top: 20px; }
@@ -16,10 +16,10 @@
 </head>
 <body>
 
-<div class="container" id="app">
+<div class="container">
     <h1>日本語単語テスト</h1>
     <div id="quiz">
-        <div class="question-box" id="q-area"></div>
+        <div class="question-box" id="q-area">読み込み中...</div>
         <input type="text" id="answer" placeholder="インドネシア語を入力">
         <button onclick="checkAnswer()">回答する</button>
     </div>
@@ -27,51 +27,59 @@
 </div>
 
 <script>
-    // GitHub上のJSONを読み込む設定（URLは後で設定）
-    const JSON_URL = 'https://raw.githubusercontent.com/kazuyukies/日本語単語練習/main/japanese%20words.json';
-    let words = [];
+    // ※重要：words.json のURLを以下に正しく設定してください
+    // kazuyukiesの後ろのリポジトリ名は「日本語単語練習」のURLエンコード版です
+    const JSON_URL = 'https://raw.githubusercontent.com/kazuyukies/%E6%97%A5%E6%9C%AC%E8%AA%9E%E5%8D%98%E8%AA%9E%E7%B7%B4%E7%BF%92/main/words.json';
+
     let currentQuiz = [];
     let currentIndex = 0;
     let score = 0;
 
     async function init() {
-        const response = await fetch(JSON_URL);
-        const data = await response.json();
-        // JSONの形式に合わせて調整（wordsキーの中身を取得）
-        const allWords = data.words || data; 
+        try {
+            const response = await fetch(JSON_URL);
+            const data = await response.json();
+            const allWords = data.words || data; 
 
-        const nouns = allWords.filter(w => w.category.includes('名詞'));
-        const verbs = allWords.filter(w => w.category === '動詞');
-        const adjs = allWords.filter(w => w.category.includes('形容詞') || w.no >= 415);
+            const nouns = allWords.filter(w => w.category && w.category.includes('名詞'));
+            const verbs = allWords.filter(w => w.category === '動詞');
+            const adjs = allWords.filter(w => w.category && (w.category.includes('形容詞') || w.no >= 415));
 
-        currentQuiz = [
-            ...getRandom(nouns, 4),
-            ...getRandom(verbs, 3),
-            ...getRandom(adjs, 3)
-        ].sort(() => Math.random() - 0.5);
+            currentQuiz = [
+                ...getRandom(nouns, 4),
+                ...getRandom(verbs, 3),
+                ...getRandom(adjs, 3)
+            ].sort(() => Math.random() - 0.5);
 
-        showQuestion();
+            showQuestion();
+        } catch (e) {
+            document.getElementById('q-area').innerHTML = "データの読み込みエラーです。URLを確認してください。";
+        }
     }
 
     function getRandom(arr, n) {
-        return arr.sort(() => 0.5 - Math.random()).slice(0, n);
+        return [...arr].sort(() => 0.5 - Math.random()).slice(0, n);
     }
 
     function showQuestion() {
-        if(currentIndex < 10) {
+        if(currentIndex < 10 && currentIndex < currentQuiz.length) {
+            const q = currentQuiz[currentIndex];
             document.getElementById('q-area').innerHTML = `
-                <p>カテゴリー: ${currentQuiz[currentIndex].category}</p>
-                <h3>${currentQuiz[currentIndex].kanji} (${currentQuiz[currentIndex].hiragana})</h3>
+                <p>カテゴリー: ${q.category}</p>
+                <h3>${q.kanji} (${q.hiragana})</h3>
             `;
         } else {
             document.getElementById('quiz').innerHTML = '';
-            document.getElementById('result').innerHTML = `結果: ${score}点 / 100点`;
+            document.getElementById('result').innerHTML = `最終結果: ${score}点 / 100点`;
         }
     }
 
     function checkAnswer() {
-        const input = document.getElementById('answer').value.toLowerCase();
-        if(input === currentQuiz[currentIndex].indonesian.toLowerCase()) score += 10;
+        const input = document.getElementById('answer').value.trim().toLowerCase();
+        const correct = currentQuiz[currentIndex].indonesian.trim().toLowerCase();
+        
+        if(input === correct) score += 10;
+        
         currentIndex++;
         document.getElementById('answer').value = '';
         showQuestion();
