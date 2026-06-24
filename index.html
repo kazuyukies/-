@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日本語単語学習ツール</title>
+    <title>日本語学習単語</title>
     <style>
         body { font-family: sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
         .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
@@ -11,18 +11,20 @@
         .answer-box { margin-top: 20px; font-size: 1.5rem; color: #d9534f; font-weight: bold; min-height: 2em; }
         button { width: 100%; padding: 15px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1rem; margin-top: 10px; }
         .next-btn { background-color: #007bff; }
+        .footer-msg { margin-top: 30px; color: #555; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>日本語単語学習</h1>
+    <h1>日本語学習単語<br><small style="font-size: 0.9rem;">(Pembelajaran kosakata bahasa Jepang)</small></h1>
     <div id="quiz">
         <div class="question-box" id="q-area">読み込み中...</div>
         <div class="answer-box" id="a-area"></div>
-        <button id="action-btn" onclick="showAnswer()">インドネシア語を見る (Lihat Bahasa Indonesia)</button>
+        <button id="action-btn" onclick="showAnswer()">インドネシア語を見る<br>(Lihat Bahasa Indonesia)</button>
         <button class="next-btn" onclick="nextQuestion()">次の単語へ</button>
     </div>
+    <div id="footer" class="footer-msg"></div>
 </div>
 
 <script>
@@ -65,8 +67,12 @@
                 <p>(${q.hiragana})</p>
             `;
             document.getElementById('a-area').innerHTML = "";
+            document.getElementById('footer').innerHTML = "";
         } else {
-            document.getElementById('quiz').innerHTML = "<h2>すべての学習が完了しました！</h2>";
+            document.getElementById('quiz').innerHTML = `
+                <h2>お疲れさまでした！<br>(Kerja bagus semuanya!)</h2>
+                <p>毎日つづけましょうね<br>(Mari kita lanjutkan ini setiap hari)</p>
+            `;
         }
     }
 
