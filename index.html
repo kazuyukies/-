@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日本語単語学習テスト</title>
     <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
+        body { font-family: sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
         .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
         h1 { font-size: 1.5rem; color: #333; text-align: center; }
         .question-box { margin: 20px 0; padding: 20px; background: #eef2f3; border-radius: 8px; text-align: center; }
@@ -27,9 +27,8 @@
 </div>
 
 <script>
-    // ※重要：words.json のURLを以下に正しく設定してください
-    // kazuyukiesの後ろのリポジトリ名は「日本語単語練習」のURLエンコード版です
-    const JSON_URL = 'https://raw.githubusercontent.com/kazuyukies/%E6%97%A5%E6%9C%AC%E8%AA%9E%E5%8D%98%E8%AA%9E%E7%B7%B4%E7%BF%92/main/words.json';
+    // ファイル名を words.json に統一している場合、以下を指定
+    const DATA_FILE = 'japanesewords.json';
 
     let currentQuiz = [];
     let currentIndex = 0;
@@ -37,12 +36,15 @@
 
     async function init() {
         try {
-            const response = await fetch(JSON_URL);
+            const response = await fetch(DATA_FILE);
             const data = await response.json();
-            const allWords = data.words || data; 
+            
+            // データが { "words": [...] } の形式ならそれを使用、単なる配列ならそのまま使用
+            const allWords = data.words || data;
 
+            // カテゴリーでフィルタリング
             const nouns = allWords.filter(w => w.category && w.category.includes('名詞'));
-            const verbs = allWords.filter(w => w.category === '動詞');
+            const verbs = allWords.filter(w => w.category && w.category.includes('動詞'));
             const adjs = allWords.filter(w => w.category && (w.category.includes('形容詞') || w.no >= 415));
 
             currentQuiz = [
@@ -53,7 +55,8 @@
 
             showQuestion();
         } catch (e) {
-            document.getElementById('q-area').innerHTML = "データの読み込みエラーです。URLを確認してください。";
+            document.getElementById('q-area').innerHTML = "データの読み込みエラーが発生しました。ファイル名や形式を確認してください。";
+            console.error(e);
         }
     }
 
