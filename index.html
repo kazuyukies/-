@@ -12,12 +12,14 @@
         button { width: 100%; padding: 15px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1rem; margin-top: 10px; }
         .next-btn { background-color: #007bff; }
         .footer-msg { margin-top: 30px; color: #555; font-size: 0.9rem; }
+        #header-msg { margin-bottom: 15px; font-weight: bold; color: #333; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>日本語学習単語<br><small style="font-size: 0.9rem;">(Pembelajaran kosakata bahasa Jepang)</small></h1>
+    <div id="header-msg"></div>
     <div id="quiz">
         <div class="question-box" id="q-area">読み込み中...</div>
         <div class="answer-box" id="a-area"></div>
@@ -48,6 +50,7 @@
                 ...getRandom(adjs, 3)
             ].sort(() => Math.random() - 0.5);
 
+            document.getElementById('header-msg').innerHTML = "単語学習10問をやってみましょう<br>(Mari kita coba 10 pertanyaan pembelajaran kosakata ini.)";
             showQuestion();
         } catch (e) {
             document.getElementById('q-area').innerHTML = "データの読み込みエラー";
@@ -61,6 +64,7 @@
     function showQuestion() {
         if(currentIndex < currentQuiz.length) {
             const q = currentQuiz[currentIndex];
+            document.getElementById('header-msg').innerHTML = `第${currentIndex + 1}問 (Pertanyaan ${currentIndex + 1})`;
             document.getElementById('q-area').innerHTML = `
                 <p>カテゴリー: ${q.category}</p>
                 <h2>${q.kanji}</h2>
@@ -69,9 +73,11 @@
             document.getElementById('a-area').innerHTML = "";
             document.getElementById('footer').innerHTML = "";
         } else {
+            document.getElementById('header-msg').innerHTML = "";
             document.getElementById('quiz').innerHTML = `
                 <h2>お疲れさまでした！<br>(Kerja bagus semuanya!)</h2>
                 <p>毎日つづけましょうね<br>(Mari kita lanjutkan ini setiap hari)</p>
+                <button class="next-btn" onclick="location.reload()">最初からやり直す (Mulai lagi)</button>
             `;
         }
     }
